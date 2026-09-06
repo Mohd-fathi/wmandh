@@ -243,7 +243,7 @@ button{border:0}
   ==========================================================
 -->
 <audio id="bgMusic" preload="auto" loop playsinline>
-  <source src="music-w1.mp3" type="audio/mpeg">
+<source src="./music-w1.mp3" type="audio/mpeg">
 </audio>
 
 <button id="audio-control" type="button" aria-label="تشغيل أو إيقاف الموسيقى">
@@ -503,7 +503,7 @@ document.getElementById("envelope").addEventListener("keydown", event => {
 /* =========================================================
    5) العد التنازلي
    ========================================================= */
-const weddingDate = new Date(2026, 9, 19, 20, 0, 0).getTime();
+const weddingDate = new Date(2026,9,19,20, 0, 0).getTime();
 
 function updateCountdown() {
   const distance = weddingDate - Date.now();

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#12090b">
-<meta name="description" content="دعوة زفاف مصطفى هديل ">
+<meta name="description" content="دعوة زفاف مصطفى وهديل">
 <title>دعوة زفاف | مصطفى & هديل</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -232,20 +232,6 @@ button{border:0}
 
 <body>
 
-<!--
-  ==========================================================
-  الصوت:
-  1) الصفحة تحتوي على رابط موسيقى احتياطي يعمل بعد ضغط المستخدم.
-  2) يمكن استبداله بسهولة بملفك:
-     <source src="music/wedding.mp3" type="audio/mpeg">
-  3) المتصفح يمنع التشغيل التلقائي قبل تفاعل المستخدم،
-     لذلك يبدأ الصوت عند الضغط على الظرف — وهذا هو الأسلوب الصحيح.
-  ==========================================================
--->
-<audio id="bgMusic" preload="auto" loop playsinline>
-<source src="./music-w1.mp3" type="audio/mpeg">
-</audio>
-
 <button id="audio-control" type="button" aria-label="تشغيل أو إيقاف الموسيقى">
   <span id="audio-icon">🔊</span>
   <span id="audio-label">إيقاف الموسيقى</span>
@@ -356,20 +342,12 @@ button{border:0}
 <script>
 "use strict";
 
-/* =========================================================
-   1) اسم المدعو
-   مثال:
-   wedding.html?name=محمد أحمد
-   ========================================================= */
 const params = new URLSearchParams(window.location.search);
 const guest = params.get("name");
 
 document.getElementById("guestName").textContent =
   guest ? `إلى ضيفنا الكريم: ${guest}` : "إلى ضيفنا الكريم";
 
-/* =========================================================
-   2) واتساب
-   ========================================================= */
 const phone = "249997599917";
 
 const attendMessage = guest
@@ -386,16 +364,17 @@ document.getElementById("attend").href =
 document.getElementById("decline").href =
   `https://wa.me/${phone}?text=${encodeURIComponent(declineMessage)}`;
 
-/* =========================================================
-   3) الموسيقى — الإصلاح الأساسي
-   ========================================================= */
-const music = document.getElementById("bgMusic");
+/* إنشاء الصوت برمجياً لتجاوز قيود المتصفحات */
+const music = new Audio("music-w1.wav");
+music.loop = true;
+music.volume = 0.55;
+
+let audioReady = false;
+
 const audioControl = document.getElementById("audio-control");
 const audioIcon = document.getElementById("audio-icon");
 const audioLabel = document.getElementById("audio-label");
 const audioStatus = document.getElementById("audio-status");
-
-let audioReady = false;
 
 function showAudioStatus(message) {
   audioStatus.textContent = message;
@@ -406,46 +385,25 @@ function showAudioStatus(message) {
   }, 3000);
 }
 
-music.addEventListener("canplaythrough", () => {
-  audioReady = true;
-});
-
-music.addEventListener("error", () => {
-  audioReady = false;
-  showAudioStatus("تعذر تحميل الموسيقى من الإنترنت");
-  audioControl.style.display = "none";
-});
-
-/*
-  مهم:
-  المتصفحات الحديثة تمنع تشغيل الصوت تلقائياً.
-  لذلك نستدعي play() داخل حدث الضغط على الظرف نفسه.
-*/
 async function startMusic() {
   try {
-    if (!music.src) return false;
-
-    music.volume = 0.55;
     await music.play();
-
     audioReady = true;
     audioControl.style.display = "flex";
     audioIcon.textContent = "🔊";
     audioLabel.textContent = "إيقاف الموسيقى";
-    return true;
   } catch (error) {
-    console.warn("Audio play blocked:", error);
+    console.warn("تم منع تشغيل الصوت تلقائياً:", error);
     audioControl.style.display = "flex";
     audioIcon.textContent = "🔇";
     audioLabel.textContent = "تشغيل الموسيقى";
-    showAudioStatus("اضغط زر الموسيقى لتشغيلها");
-    return false;
+    showAudioStatus("اضغط هنا لتشغيل الموسيقى");
   }
 }
 
-audioControl.addEventListener("click", async () => {
+audioControl.addEventListener("click", () => {
   if (music.paused) {
-    await startMusic();
+    startMusic();
   } else {
     music.pause();
     audioIcon.textContent = "🔇";
@@ -453,9 +411,6 @@ audioControl.addEventListener("click", async () => {
   }
 });
 
-/* =========================================================
-   4) فتح الظرف
-   ========================================================= */
 let opened = false;
 
 async function openEnvelope() {
@@ -468,10 +423,7 @@ async function openEnvelope() {
 
   envelope.classList.add("open");
 
-  /*
-    تشغيل الموسيقى هنا مباشرة داخل click event.
-    هذه أهم نقطة حتى يسمح المتصفح بالصوت.
-  */
+  // تشغيل الموسيقى عند النقر
   await startMusic();
 
   setTimeout(() => {
@@ -500,10 +452,8 @@ document.getElementById("envelope").addEventListener("keydown", event => {
   }
 });
 
-/* =========================================================
-   5) العد التنازلي
-   ========================================================= */
-const weddingDate = new Date(2026,9,19,20, 0, 0).getTime();
+/* العد التنازلي بصيغة النص القياسية المدعومة في كل المتصفحات */
+const weddingDate = new Date("2026-09-19T20:00:00").getTime();
 
 function updateCountdown() {
   const distance = weddingDate - Date.now();
@@ -528,9 +478,6 @@ function updateCountdown() {
 updateCountdown();
 setInterval(updateCountdown, 1000);
 
-/* =========================================================
-   6) المؤثرات
-   ========================================================= */
 function startParticles() {
   const container = document.getElementById("particles");
   const symbols = ["✦", "✧", "❖", "✿"];
